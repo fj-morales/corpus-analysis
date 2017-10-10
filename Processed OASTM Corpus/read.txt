@@ -1,0 +1,1 @@
+This folder contains all the 110 documents from Elsevier. The documents have been preprocessed so that can be used raw data for text analysis. It will be used in AntMover, AWA and others related text analysis software.
