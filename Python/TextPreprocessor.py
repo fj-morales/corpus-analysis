@@ -9,6 +9,7 @@ OASTMCorpusID = 1
 
 #tool id (predefined value in database)
 AntMover = '1'
+AWA = '2'
 
 list_sectionLabel = ['introduction','abstract','background','technique','techniques','method','methods','conclusion','content']
 
@@ -18,7 +19,7 @@ def textProcess_OASTM(folderPath,outputPath):
     dc_categoryFile = {}
     for sentence in categoryFile.readlines():
         tokenizeSentence = sentence.split('\t');
-        dc_categoryFile.update({tokenizeSentence[0]:tokenizeSentence[1]})
+        dc_categoryFile.update({tokenizeSentence[0]:tokenizeSentence[1].lstrip().rstrip()})
     
     categoryFile.close()
     #get dbconnection
@@ -186,4 +187,88 @@ def textProcess_AntMover(folderPath,corpusId):
     dbConnection.closeDb(db)
     writeFile.close()
     processedFile.close()
+
+
+def textProcess_AWA(folderPath,corpusId):
+    
+    db = dbConnection.connectToDb()
+    dbCursor = db.cursor()
+    process_date = time.strftime('%Y-%m-%d %H:%M:%S')
+    sentenceAnnotation_query = ("INSERT INTO SENTENCE_ANNOTATION(sentence_id,tool_id,sentence_date,annotation_id) VALUES(%s,%s,%s,%s)")
+    writeFile = open(folderPath+'/files/'+'error.txt','w')
+    processedFile = open(folderPath+'/files/'+'fileNames.txt','w')
+    noRedundantSentence = 0
+    #get all the annotation scheme of AWA except the main category annotation
+    dicAnnotation = {}
+    dbCursor.execute("SELECT annotation_label,annotation_id FROM ANNOTATION WHERE tool_id=2")
+    for (annotation_label,annotation_id) in dbCursor:
+        dicAnnotation.update({annotation_label:annotation_id})
+    
+    for fileName in os.listdir(folderPath):
+        if(fileName.find('.txt')==-1):
+            continue
+        else:
+            contentFile = open(folderPath + '/' +fileName)
+            for sentenceFile in contentFile.readlines():
+                sentenceWithoutTrailingSpace = sentenceFile.rstrip()
+                if(sentenceWithoutTrailingSpace!=''):
+                    #check the sentence in the database
+                    dbCursor.execute("SELECT COUNT(sentence_id) AS countno FROM SENTENCE WHERE sentence_detail='" + sentenceWithoutTrailingSpace +"'")
+                    for countno in dbCursor:
+                        noRedundantSentence = countno[0]
+                    
+                    if(noRedundantSentence==0):
+                        #tokenize and get the sub category annotation scheme
+                        listTokenizeSentence = sentenceWithoutTrailingSpace.split(' ')
+                        intTokenCount = 1
+                        tempStoreAnnotation = set()
+                        for tokenWord in listTokenizeSentence:
+                            if(dicAnnotation.has_key(tokenWord)):
+                                tempStoreAnnotation.add(tokenWord) # store the sub category annotations for the sentence
+                                tempSentence = ' '.join(listTokenizeSentence[intTokenCount:])
+                                intTokenCount+=1
+                                dbCursor.execute("SELECT COUNT(sentence_id) AS countno FROM SENTENCE WHERE sentence_detail='" + tempSentence +"'")
+                                for countno in dbCursor:
+                                    noRedundantSentence = countno[0]
+                                    
+                                if(noRedundantSentence==0):
+                                    continue #means the sentence has more than one annotation
+                                elif(noRedundantSentence==1):
+                                    #insert into SENTENCE_ANNOTATION table with all the tempStoreAnnotation
+                                    dbCursor.execute("SELECT sentence_id FROM SENTENCE WHERE sentence_detail='" + tempSentence +"'")
+                                    for (sentence_id) in dbCursor:
+                                        for subAnnotation in tempStoreAnnotation:
+                                            sentenceAnnotation_data = (sentence_id[0],AWA,process_date,dicAnnotation.get(subAnnotation))
+                                            dbCursor.execute(sentenceAnnotation_query,sentenceAnnotation_data)
+                                    break
+                                else:
+                                    #insert into error file with sentence:fileName
+                                    writeFile.write(fileName + ' ' + tempSentence + '\n')
+                                    break
+                                
+                            else:
+                                #insert into error file with sentence:fileName  
+                                writeFile.write(fileName + ' ' + sentenceFile + '\n')  
+                                break    
+                                
+                    elif(noRedundantSentence==1):
+                        #insert into SENTENCE_ANNOTATION table
+                        dbCursor.execute("SELECT sentence_id FROM SENTENCE WHERE sentence_detail='" + sentenceFile +"'")
+                        for (sentence_id) in dbCursor:
+                            sentenceAnnotation_data = (sentence_id[0],AWA,process_date,dicAnnotation.get('MainCategory'))
+                            dbCursor.execute(sentenceAnnotation_query,sentenceAnnotation_data)
+                    else:
+                        #insert into error file with sentence:fileName
+                        writeFile.write(fileName + ' ' + sentenceFile + '\n')
+                        
+        db.commit()
+        processedFile.write(fileName + '\n')
+        print(fileName)
+    
+    print('Completed')
+    writeFile.close()
+    processedFile.close()
+    dbCursor.close()
+    dbConnection.closeDb(db)
+                
                 
