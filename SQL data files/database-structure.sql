@@ -53,7 +53,7 @@ sentence_id				BIGINT,
 tool_id						INTEGER,
 sentence_date		DATE,
 annotation_id			INTEGER DEFAULT NULL,
-PRIMARY KEY(sentence_id, tool_id,sentence_date),
+PRIMARY KEY(sentence_id, tool_id,sentence_date,annotation_id),
 FOREIGN KEY(sentence_id) REFERENCES SENTENCE(sentence_id),
 FOREIGN KEY(tool_id) REFERENCES TOOL(tool_id),
 FOREIGN KEY(annotation_id) REFERENCES ANNOTATION(annotation_id)
