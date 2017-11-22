@@ -1,5 +1,5 @@
 library(readr)
-documentAnnotations <- read_csv("~/DIC-Corpus-Analysis/AWA_documentAnnotationPercentage.csv")
+documentAnnotations <- read_csv("~/DIC-Corpus-Analysis/AWA_test3.csv")
 tableAnnotation = NULL #empty table
 tableAnnotation <- rbind(tableAnnotation,documentAnnotations[1,])
 tableAnnotation <- rbind(tableAnnotation,documentAnnotations[2,])
@@ -12,7 +12,7 @@ annotationSentences <- data.matrix(tableAnnotation[1,])
 #annotation and no annotation
 newTableAnnotation <- data.matrix(tableAnnotation)
 
-par(oma = c(1,1,1,1))
+par(oma = c(0,0,0,0))
 par(mar = c(5,4,2,0))
 
 barplot(annotationSentences,

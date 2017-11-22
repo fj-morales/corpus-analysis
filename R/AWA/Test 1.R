@@ -12,8 +12,6 @@ WHERE tool_id=2 ORDER BY sentence_id"
 
 resultSet <- dbGetQuery(dbConnection, queryStatement)
 
-#exit connection
-on.exit(dbDisconnect(dbConnection))
 #############################################################################
 
 ############################option 1 (from RData)############################
@@ -25,11 +23,16 @@ load("AWA_resultSet.RData")
 #plot bar chart to show the total number of each annotations used in OASTM corpus by AntMover
 #########################using frequency count##############################
 tableResultSet <- table(resultSet$annotation_id)
+
+par(oma = c(1,1,1,1))
+par(mar = c(5,4,2,0))
+
 barplot(tableResultSet,
         main = "AWA: Frequency (Sentence) of Annotation Scheme",
         xlab = "Annotation Scheme",
         ylab = "Count",
         col=c("beige"))
+
 
 ##############using count/total count per document id###############
 #select all annotation scheme for AntMover
@@ -58,32 +61,35 @@ resultSet <- dbGetQuery(dbConnection, queryStatement)
 tableDocumentId <- cbind(tableDocumentId,resultSet$number_of_lines)
 
 #rename the columns names
-colnames(tableDocumentId) <- c("Id18","Id19","Id20","Id21","Id22","Id23","Id24","Id25","Id26","TotalSentenceLines")
+colnames(tableDocumentId) <- c("Id27","Id28","Id29","Id30","Id31","Id32","Id33","Id34","Id35","Id36","Id37","TotalSentenceLines")
 
 tempTable <- tableDocumentId
 tempTable <- transform(tempTable)
-tempTable$Id18 <- round(tempTable$Id18/tempTable$TotalSentenceLines, digits = 5)
-tempTable$Id19 <- round(tempTable$Id19/tempTable$TotalSentenceLines, digits = 5)
-tempTable$Id20 <- round(tempTable$Id20/tempTable$TotalSentenceLines, digits = 5)
-tempTable$Id21 <- round(tempTable$Id21/tempTable$TotalSentenceLines, digits = 5)
-tempTable$Id22 <- round(tempTable$Id22/tempTable$TotalSentenceLines, digits = 5)
-tempTable$Id23 <- round(tempTable$Id23/tempTable$TotalSentenceLines, digits = 5)
-tempTable$Id24 <- round(tempTable$Id24/tempTable$TotalSentenceLines, digits = 5)
-tempTable$Id25 <- round(tempTable$Id25/tempTable$TotalSentenceLines, digits = 5)
-tempTable$Id26 <- round(tempTable$Id26/tempTable$TotalSentenceLines, digits = 5)
+tempTable$Id27 <- round(tempTable$Id27/tempTable$TotalSentenceLines, digits = 5)
+tempTable$Id28 <- round(tempTable$Id28/tempTable$TotalSentenceLines, digits = 5)
+tempTable$Id29 <- round(tempTable$Id29/tempTable$TotalSentenceLines, digits = 5)
+tempTable$Id30 <- round(tempTable$Id30/tempTable$TotalSentenceLines, digits = 5)
+tempTable$Id31 <- round(tempTable$Id31/tempTable$TotalSentenceLines, digits = 5)
+tempTable$Id32 <- round(tempTable$Id32/tempTable$TotalSentenceLines, digits = 5)
+tempTable$Id33 <- round(tempTable$Id33/tempTable$TotalSentenceLines, digits = 5)
+tempTable$Id34 <- round(tempTable$Id34/tempTable$TotalSentenceLines, digits = 5)
+tempTable$Id35 <- round(tempTable$Id35/tempTable$TotalSentenceLines, digits = 5)
+tempTable$Id36 <- round(tempTable$Id36/tempTable$TotalSentenceLines, digits = 5)
+tempTable$Id37 <- round(tempTable$Id37/tempTable$TotalSentenceLines, digits = 5)
 
 
-newPropotionTable <- rbind(c(sum(tempTable$Id18),sum(tempTable$Id19),sum(tempTable$Id20),
-                             sum(tempTable$Id21),sum(tempTable$Id22),sum(tempTable$Id23),
-                             sum(tempTable$Id24),sum(tempTable$Id25),sum(tempTable$Id26)))
-colnames(newPropotionTable) <- c("Id18","Id19","Id20","Id21","Id22","Id23","Id24","Id25","Id26")
+newPropotionTable <- rbind(c(sum(tempTable$Id27),sum(tempTable$Id28),sum(tempTable$Id29),
+                             sum(tempTable$Id30),sum(tempTable$Id31),sum(tempTable$Id32),
+                             sum(tempTable$Id33),sum(tempTable$Id34),sum(tempTable$Id35),
+                             sum(tempTable$Id36), sum(tempTable$Id37)))
+colnames(newPropotionTable) <- c("Id27","Id28","Id29","Id30","Id31","Id32","Id33","Id34","Id35","Id36","Id37")
+
 barplot(newPropotionTable,
         main = "AWA: Proportion (Document) of Annotation Scheme",
         xlab = "Annotation Scheme",
-        ylab = "Count",
-        names.arg = c("18", "19", "20","21","22","23","24","25","26"),
-        col=c("beige")
-)
+        ylab = "Proportion",
+        names.arg = c("27", "28", "29","30","31","32","33","34","35","36","37"),
+        col=c("beige"))
 
 #exit connection
 on.exit(dbDisconnect(dbConnection))

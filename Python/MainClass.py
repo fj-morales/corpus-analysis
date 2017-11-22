@@ -1,10 +1,32 @@
-import TextPreprocessor as tp
+from TextPreprocessorCorpus import TextPreprocessorCorpus as tpCorpus
+from TextPreprocessorTool import TextPreprocessorTool as tpTool
+
+#create instance of classes
+tpCorpusObject = tpCorpus()
+tpToolObject = tpTool()
+#corpus Id in database
+OASTMCorpusID = 1
+PMCCorpusId = 4
+BAWECorpusId = 3 
+
+
 #test OASTM data
-#input (location of files to be process, location to output the processed file)
-#tp.textProcess_OASTM('/Users/yoongkuan/Desktop/DIC-Corpus/OASTM-corpus/xmlFiles','/Users/yoongkuan/Desktop/DIC-Corpus/OASTM-corpus/processedFiles')
+#tpCorpusObject.textProcess_OASTM('/Users/yoongkuan/Desktop/Elsevier-corpus/files','/Users/yoongkuan/Desktop/Elsevier-corpus/output')
 
-#test AntMover tool
-#tp.textProcess_AntMover('/Users/yoongkuan/Desktop/DIC-Corpus/OASTM-corpus/AntMoverResult',1)
+#text process PMC corpus
+#tpCorpusObject.textProcess_PMC('/Users/yoongkuan/Desktop/PMC-corpus/files', '/Users/yoongkuan/Desktop/PMC-corpus/output', 'Sociology')
 
-#test AWA tool
-#tp.textProcess_AWA('/Users/yoongkuan/Desktop/DIC-Corpus/AWA/Result', 1)
+#text process BAWE corpus
+#tpCorpusObject.textProcess_BAWE('/Users/yoongkuan/Desktop/DIC-Corpus/AllData/BAWE-Corpus/CORPUS_ByDiscipline', '/Users/yoongkuan/Desktop/BAWE')
+
+#save all preprocess files into database
+#tpCorpusObject.genericDataProcessing("/Users/yoongkuan/Desktop/CIC corpora/BAWE/original")
+
+#preprocess AntMover
+tpToolObject.textProcess_newVersion_AntMover('/Users/yoongkuan/Desktop/CIC Corpora/BAWE/AntMover/processFolder')
+
+#preprocess AWA
+#tpToolObject.textProcess_AWA('/Users/yoongkuan/Desktop/CIC Corpora/BAWE/AWA','/Users/yoongkuan/Desktop/CIC Corpora/BAWE/Log',BAWECorpusId)
+
+#text extracts sentences from database based on ID
+#tpCorpusObject.extractSentenceBasedDocId('/Users/yoongkuan/Desktop/DIC-Corpus/corpus')

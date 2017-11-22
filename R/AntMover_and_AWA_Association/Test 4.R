@@ -9,27 +9,30 @@ queryStatement<- paste0("SELECT ANTMOVERLABEL.annotation_label AS ANTMOVER_LABEL
                         "SENTENCE_ANNOTATION ANTMOVER, SENTENCE_ANNOTATION AWA, ",
                         "ANNOTATION ANTMOVERLABEL, ANNOTATION AWALABEL, ",
                         "SENTENCE AWASENTENCE, DOCUMENT AWADOCUMENT ",
-                        "WHERE AWASENTENCE.document_id = AWADOCUMENT.document_id ",
+                        "WHERE AWASENTENCE.document_label = AWADOCUMENT.document_label ",
+                        "AND AWASENTENCE.corpus_id = AWADOCUMENT.corpus_id ",
                         "AND AWASENTENCE.sentence_id = AWA.sentence_id ",
                         "AND AWA.sentence_id = ANTMOVER.sentence_id ",
-                        "AND AWADOCUMENT.document_category = 'Materials Science' ",
+                        "AND AWADOCUMENT.document_category = 'Mathematics' ",
                         "AND AWA.tool_id = 2 AND ANTMOVER.tool_id=1 ",
-                        "AND ANTMOVER.sentence_date='2017-10-08' ",
                         "AND AWA.annotation_id = AWALABEL.annotation_id ",
                         "AND ANTMOVER.annotation_id = ANTMOVERLABEL.annotation_id ",
                         "ORDER BY ANTMOVERLABEL.annotation_id,AWALABEL.annotation_id ASC")
 
 resultTest1 <- dbGetQuery(dbConnection, queryStatement)
 summaryTableTest1 <- table(resultTest1)
+chisq.test(summaryTableTest1)
+
+
+
 summaryTableTest1 <-rbind("Claiming_centrality" = summaryTableTest1["1_claiming_centrality",],
                           "Announcing_principal_findings" = summaryTableTest1["10_announcing_principal_findings",],
                           "Evaluation_of_research" = summaryTableTest1["11_evaluation_of_research",],
                           "Making_topic_generalizations" = summaryTableTest1["2_making_topic_generalizations",],
                           "Indicating_a_gap" = summaryTableTest1["5_indicating_a_gap",],
                           "Announcing_present_research" = summaryTableTest1["9_announcing_present_research",])
-column1 <- rbind(23,17095,5460,3446,86,2411)
-colnames(column1)<-"NotAnnotated"
-temporaryTable <- cbind(summaryTableTest1,"NotAnnotated" = column1)
+
+
 
 
 #Test 1: Is AntMover moves independent to AWA annotations?
@@ -37,8 +40,12 @@ temporaryTable <- cbind(summaryTableTest1,"NotAnnotated" = column1)
 chisquareTest1 <- chisq.test(summaryTableTest1) #X-squared = 176.7, df = 40, p-value < 2.2e-16
 
 #Bind some columns with smaller values
-tempSummaryTableTest1 = cbind("Contrast" = summaryTableTest1[,"Contrast"],
-                              "Others" = (summaryTableTest1[,"Emphasis"] + summaryTableTest1[,"Background"] + summaryTableTest1[,"MainCategory"] + summaryTableTest1[,"Novelty"] + summaryTableTest1[,"Position"] + summaryTableTest1[,"Question"]))
+tempSummaryTableTest1 <- cbind("Contrast" = summaryTableTest1[,"Contrast"],
+                              "Others" = (summaryTableTest1[,"Emphasis"] + summaryTableTest1[,"Background"] + summaryTableTest1[,"Important&Summary"] + summaryTableTest1[,"Novelty"] + summaryTableTest1[,"Position"] + summaryTableTest1[,"Question"] + summaryTableTest1[,"Summary"] + summaryTableTest1[,"Trend"]),
+                              "Important" = summaryTableTest1[,"Important"])
+
+tempSummaryTableTest1 <- rbind("announcing_principal_findings" = tempSummaryTableTest1["10_announcing_principal_findings",],
+                               "making_topic_generalizations" = tempSummaryTableTest1["2_making_topic_generalizations",])
 chisq.test(tempSummaryTableTest1)
 
 
@@ -46,17 +53,18 @@ chisq.test(tempSummaryTableTest1)
 chisquareTest1$observed
 #expected count
 round(chisquareTest1$expected,2)
-
 #Finding the most contributing cells to the total Chi-square score, 
 #by calculating the Chi-square statistic for each cell
 #Cells with the highest absolute standardized residuals contribute the most to the total Chi-square score
 round(chisquareTest1$residuals, 3)
-corrplot(chisquareTest1$residuals, is.cor = FALSE)
+corrplot(chisquareTest1$residuals, is.cor = FALSE,
+         title = 'Biology',mar=c(0,0,3,0))
 
 # contribution in percentage
 contribPercentageTest1 <- 100*chisquareTest1$residuals^2/chisquareTest1$statistic
 round(contribPercentageTest1, 3)
-corrplot(contribPercentageTest1, is.cor = FALSE)
+corrplot(contribPercentageTest1, is.cor = FALSE,
+         title = 'Biology',mar=c(0,0,3,0))
 
 #Creating new Annotation Scheme called 'others' to accomodate the sentences that AWA not annotated but AntMover annotates
 queryStatement<-paste0("SELECT ANTMOVER.annotation_id AS ANTMOVER_ID, AWA.annotation_id AS AWA_ID ",
@@ -64,7 +72,6 @@ queryStatement<-paste0("SELECT ANTMOVER.annotation_id AS ANTMOVER_ID, AWA.annota
                        "LEFT JOIN SENTENCE_ANNOTATION AWA ",
                        "ON ANTMOVER.sentence_id = AWA.sentence_id AND AWA.tool_id = 2 ",
                        "WHERE ANTMOVER.tool_id=1 ",
-                       "AND ANTMOVER.sentence_date='2017-10-08' ",
                        "ORDER BY ANTMOVER.annotation_id,AWA.annotation_id ASC")
 
 resultTest2 <- dbGetQuery(dbConnection, queryStatement)

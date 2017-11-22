@@ -3,13 +3,12 @@ library("RMySQL")
 library("corrplot")
 dbConnection <- dbConnect(MySQL(),
                           user="root", password="ineeduyes",
-                          dbname="corpus", host="localhost")
+                          dbname="CICAWA", host="localhost")
 
 queryStatement<- paste0("SELECT ANTMOVERLABEL.annotation_label AS ANTMOVER_LABEL, AWALABEL.annotation_label AS AWA_LABEL FROM ",
                         "SENTENCE_ANNOTATION ANTMOVER, SENTENCE_ANNOTATION AWA, ANNOTATION ANTMOVERLABEL, ANNOTATION AWALABEL ",
                         "WHERE AWA.sentence_id = ANTMOVER.sentence_id ",
                         "AND AWA.tool_id = 2 AND ANTMOVER.tool_id=1 ",
-                        "AND ANTMOVER.sentence_date='2017-10-08' ",
                         "AND AWA.annotation_id = AWALABEL.annotation_id ",
                         "AND ANTMOVER.annotation_id = ANTMOVERLABEL.annotation_id ",
                         "ORDER BY ANTMOVERLABEL.annotation_id,AWALABEL.annotation_id ASC")
@@ -22,9 +21,9 @@ summaryTableTest1 <-rbind("Claiming_centrality" = summaryTableTest1["1_claiming_
                           "Making_topic_generalizations" = summaryTableTest1["2_making_topic_generalizations",],
                           "Indicating_a_gap" = summaryTableTest1["5_indicating_a_gap",],
                           "Announcing_present_research" = summaryTableTest1["9_announcing_present_research",])
-column1 <- rbind(23,17095,5460,3446,86,2411)
-colnames(column1)<-"NotAnnotated"
-temporaryTable <- cbind(summaryTableTest1,"NotAnnotated" = column1)
+#column1 <- rbind(23,17095,5460,3446,86,2411)
+#colnames(column1)<-"NotAnnotated"
+#temporaryTable <- cbind(summaryTableTest1,"NotAnnotated" = column1)
 
 
 #Is AntMover moves independent to AWA annotations?

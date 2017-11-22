@@ -1,10 +1,12 @@
 import mysql.connector
 
-def connectToDb():
-    # Open database connection
-    dbConnection = mysql.connector.connect(user='root', password='ineeduyes',host='localhost',database='corpus')
-    return dbConnection
-
-def closeDb(dbConnection):
-    # close database connection
-    dbConnection.close()
+class DatabaseConnection:
+    
+    def connectToDb(self):
+        # Open database connection
+        dbConnection = mysql.connector.connect(user='root', password='ineeduyes',host='localhost',database='CICAWA')
+        return dbConnection
+    
+    def closeDb(self,dbConnection):
+        # close database connection
+        dbConnection.close()

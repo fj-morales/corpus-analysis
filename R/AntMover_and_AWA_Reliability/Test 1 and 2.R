@@ -9,7 +9,6 @@ queryStatement <- "SELECT SENTENCE.sentence_id,SENTENCE_ANNOTATION.annotation_id
 FROM SENTENCE
 LEFT JOIN SENTENCE_ANNOTATION ON SENTENCE.sentence_id=SENTENCE_ANNOTATION.sentence_id
 AND SENTENCE_ANNOTATION.tool_id=1
-AND SENTENCE_DATE='2017-10-08'
 ORDER BY SENTENCE.sentence_id ASC"
 
 resultSet <- dbGetQuery(dbConnection, queryStatement)

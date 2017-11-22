@@ -9,7 +9,7 @@ queryStatement <- "SELECT DISTINCT(annotation_id) AS annotation_id FROM ANNOTATI
 annotationId<-dbGetQuery(dbConnection,queryStatement)
 
 
-queryStatement <- "SELECT DISTINCT(document_category) AS category FROM DOCUMENT WHERE corpus_id=1"
+queryStatement <- "SELECT DISTINCT(document_category) AS category FROM DOCUMENT WHERE corpus_id IN (1,4) ORDER BY document_category ASC"
 resultSet <- dbGetQuery(dbConnection, queryStatement)
 
 countno <- 1
@@ -43,17 +43,56 @@ for(categoryName in resultSet$category){
 summaryTable <- summaryTable-1
 row.names(summaryTable) <-resultSet$category
 
+#get the total sentences for each category
+queryStatement <- paste0("SELECT DOCUMENT.document_category, COUNT(*) AS 'Sentences' FROM ",
+                         "DOCUMENT, SENTENCE ",
+                         "WHERE DOCUMENT.document_id = SENTENCE.document_id ",
+                         "GROUP BY DOCUMENT.document_category ",
+                         "ORDER BY DOCUMENT.document_category ASC")
+
+resultSetCategory <- dbGetQuery(dbConnection,queryStatement)
+
+tempSummaryTable <- summaryTable
+#get the percentage of annotations by dividing number of annotation with total sentences in that category
+tempSummaryTable[,1] <- round((tempSummaryTable[,1]/resultSetCategory$Sentences)*100,3)
+tempSummaryTable[,2] <- round((tempSummaryTable[,2]/resultSetCategory$Sentences)*100,3)
+tempSummaryTable[,3] <- round((tempSummaryTable[,3]/resultSetCategory$Sentences)*100,3)
+tempSummaryTable[,4] <- round((tempSummaryTable[,4]/resultSetCategory$Sentences)*100,3)
+tempSummaryTable[,5] <- round((tempSummaryTable[,5]/resultSetCategory$Sentences)*100,3)
+tempSummaryTable[,6] <- round((tempSummaryTable[,6]/resultSetCategory$Sentences)*100,3)
+tempSummaryTable[,7] <- round((tempSummaryTable[,7]/resultSetCategory$Sentences)*100,3)
+tempSummaryTable[,8] <- round((tempSummaryTable[,8]/resultSetCategory$Sentences)*100,3)
+tempSummaryTable[,9] <- round((tempSummaryTable[,9]/resultSetCategory$Sentences)*100,3)
+tempSummaryTable[,10] <- round((tempSummaryTable[,10]/resultSetCategory$Sentences)*100,3)
+tempSummaryTable[,11] <- round((tempSummaryTable[,11]/resultSetCategory$Sentences)*100,3)
+
+
+
+#need to install RColorBrewer
+require("RColorBrewer")
 barplot(summaryTable,
         beside = TRUE,
         main = "AWA: Frequency of Annotations In Each Document Category",
-        col = c("aliceblue","bisque1","yellow1","chocolate1","darkseagreen1","deeppink1","gold1","gray1","lightsalmon1","olivedrab1"),
+        col = brewer.pal(12,"Paired"),
         xlab = "Annotation Id",
         ylab = "Number of sentences")
 
 legend(locator(1),
        cex = 0.6,
        rownames(summaryTable),
-       fill = c("aliceblue","bisque1","yellow1","chocolate1","darkseagreen1","deeppink1","gold1","gray1","lightsalmon1","olivedrab1"))
+       fill = brewer.pal(12,"Paired"))
+
+barplot(tempSummaryTable,
+        beside = TRUE,
+        main = "AWA: Frequency (% Proportion) of Annotations In Each Document Category",
+        col = brewer.pal(12,"Paired"),
+        xlab = "Annotation Id",
+        ylab = "Number of sentences")
+
+legend(locator(1),
+       cex = 0.6,
+       rownames(tempSummaryTable),
+       fill = brewer.pal(12,"Paired"))
 
 #set the columns and rows to display the barplots
 #par(mfrow=c(1,2))
