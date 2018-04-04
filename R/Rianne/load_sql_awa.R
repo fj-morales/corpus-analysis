@@ -6,7 +6,7 @@ library("dbplyr")
 # connect to mysql database (localhost)
 awadb <- src_mysql(dbname = "awa", 
                    user = "root",
-                   password = pw)
+                   password = pw) #provide your password here
 remove(pw)
 
 # load tables
