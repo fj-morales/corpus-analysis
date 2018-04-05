@@ -1,5 +1,5 @@
 ######## ---------- LOAD DATA --------------------------------------------######
-ena_antmover <- read.csv("ena_antmover_full.csv")
+ena_antmover <- read.csv("Input/ena_antmover_full.csv")
 
 ######## ---------- LOAD PACKAGES ----------------------------------------######
 library("dplyr")
@@ -12,8 +12,9 @@ code_names <- c("X1_claiming_centrality","X10_announcing_principal_findings",
               "X11_evaluation_of_research", "X2_making_topic_generalizations",
               "X5_indicating_a_gap", "X9_announcing_present_research")
 
-#condition = corpus_label
+# Create a cumulative adjacency matrix
 accum = ena.accumulate.data(
+  #condition = corpus_label
   units = ena_antmover[,c("corpus_label", "document_category")],
   conversation = ena_antmover[,c("corpus_label","document_label")],
   metadata = ena_antmover[,c("sentence_detail", "sentence_detail")],
@@ -27,6 +28,7 @@ accum = ena.accumulate.data(
   weight.by = "weighted" 
 )
 
+# Dimension reduction
 set = ena.make.set(
   enadata = accum,
   dimensions = 3,
